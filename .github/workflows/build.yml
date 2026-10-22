@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build and test
+        run: mvn -B verify
+
+      - name: Smoke test the command line
+        run: |
+          set -e
+          out=$(java -Djava.awt.headless=true -jar target/raskladka.jar "Ghbdtn? rfr ltkf&")
+          echo "$out"
+          test "$out" = "Привет, как дела?"
+          echo "руддщ цщкдв" | java -Djava.awt.headless=true -jar target/raskladka.jar - | grep -qx "hello world"
+          java -Djava.awt.headless=true -jar target/raskladka.jar --explain "ytn ghj,ktv/"
+
+      - name: Render the window
+        run: |
+          sudo apt-get install -y -qq xvfb > /dev/null
+          xvfb-run -s "-screen 0 1600x1000x24" java -jar target/raskladka.jar --screenshot screenshot-ci.png
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: raskladka
+          path: |
+            target/raskladka.jar
+            screenshot-ci.png
