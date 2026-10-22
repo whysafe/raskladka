@@ -52,7 +52,7 @@ class LanguageModelTest {
 
     @Test
     void trainsFromTextInMemory() {
-        LanguageModel tiny = LanguageModel.train("xx", c -> c >= 'a' && c <= 'z', 26, "abab abab", "ab");
+        LanguageModel tiny = LanguageModel.train("xx", c -> Layout.isLatinLetter((char) c), 26, "abab abab", "ab");
         assertTrue(tiny.isKnownWord("AB"));
         assertTrue(tiny.score("abab") > tiny.score("zqzq"));
     }
